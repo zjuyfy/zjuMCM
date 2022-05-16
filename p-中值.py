@@ -15,32 +15,27 @@ def calFitness(chrom,dis_matrix, cnum, d, c):
     #c:
     dis_sum = 0#总距离
     dis = 0#距离
-    declist = []
-    dec_chrom =chrom.copy()
-    d_list = [[] for i in range(cnum)]
+    declist = []#位置坐标
+    dec_chrom =chrom.copy()#对应坐标
+    d_list = [[] for i in range(cnum)]#列出每个
     weight = [0 for i in range(cnum)]
     demand = [0 for i in range(cnum)]
-    
     for i in range(cnum):
-        if chrom[i] == 1:
-            declist.append(i)
+        if chrom[i] >= 1:
+            for j in range(chrom[i]):
+                declist.append(i)
     
     for i in range(cnum,len(dec_chrom)):
         dec_chrom[i] = declist[dec_chrom[i]-1]
         d_list[dec_chrom[i]].append(i-cnum)
         weight[dec_chrom[i]] += dis_matrix.loc[i-cnum,dec_chrom[i]]
         demand[dec_chrom[i]] += d[i-cnum]
-        
     
     dis_sum = 0 
-    flag = 0
     for i in range(len(demand)):
         if demand[i] > c[i]:
-            dis_sum = math.pow(10,10)
-            flag = 1
-            break
-    if flag==0:
-        dis_sum = sum(weight)
+            dis_sum += (demand[i]-c[i])*1000
+    dis_sum += sum(weight)
     return round(dis_sum,1)
 
 
@@ -76,11 +71,10 @@ def initialize(dnum, cnum , p):
     in:dnum-需求点数量，cnum-备选点数量，
     out:染色体
     """
-    clist = random.sample(range(cnum),p)
-    cchrom = [1 if i in clist else 0 for i in range(cnum) ]
-    dchrom = [random.choices(range(1,p+1))[0] for i in range(dnum)]
+    clist = [random.randint(0,cnum-1) for i in range(p)]
+    cchrom = [clist.count(i) for i in range(cnum) ]
+    dchrom = [random.choice(range(1,p+1)) for i in range(dnum)]
     chrom = cchrom + dchrom
-    print(chrom)
     
     return chrom
     
@@ -137,13 +131,13 @@ if __name__ == '__main__':
     
     #需求点位置及需求量，备选中心位置及能力
     demandCoordinates = [(88, 16),(25, 76),(69, 13),(73, 56),(80, 100),(22, 92),(32, 84),(73, 46),(29, 10),(92, 32),(44, 44),(55, 26),(71, 27),(51, 91),(89, 54),(43, 28),(40, 78),(60,66)]
+    print(len(demandCoordinates))
     centerCoordinates = demandCoordinates
-    d = [3,4,5,6,7,4,2,3,4,5,6,3,5,4,3,5,1,10]#需求量，对应demandCoordinates
-    c = [25 for i in range(len(d))]#能力都设置为25，对应centerCoordinates
-    
+    d = [1,2,1,3,5,3,4,6,2,1,3,4,1,2,6,1,4,2]#需求量，对应demandCoordinates
+    c = [10 for i in range(len(d))]#能力都设置为25，对应centerCoordinates
     draw_sca(demandCoordinates,centerCoordinates)#位置图
     
-    p = 3 #待决策物流中心数量
+    p = 19 #待决策物流中心数量
     dnum = len(demandCoordinates) #需求点数量
     cnum = len(centerCoordinates) #备选中心数量
     
@@ -161,7 +155,7 @@ if __name__ == '__main__':
     num = 50
     chroms = [initialize(dnum, cnum, p) for i in range(num)]
     values = [calFitness(chrom,dis_matrix, cnum, d, c) for chrom in chroms]
-    
+    print(values)
     best_value = min(values)
     best_chrom = chroms[values.index(best_value)]
     chrom,value = best_chrom,best_value
