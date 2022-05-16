@@ -82,9 +82,9 @@ def initialize(dnum, cnum, p):
 
 
 # 画散点图
-def draw_sca(Coordinates1, Coordinates2):
+def draw_sca(Coordinates1, Coordinates2,d):
     x, y = [], []
-
+    pad=2
     x = [i[0] for i in Coordinates1]
     y = [i[1] for i in Coordinates1]
     plt.scatter(x, y, color='#ff69E1', marker='o')
@@ -92,6 +92,9 @@ def draw_sca(Coordinates1, Coordinates2):
     x = [i[0] for i in Coordinates2]
     y = [i[1] for i in Coordinates2]
     plt.scatter(x, y, color='#4169E1', marker='*')
+    for i in range(len(d)):
+        plt.text(Coordinates1[i][0]-pad,
+                     Coordinates1[i][1]-pad, str(d[i]),color='red')
 
     plt.xlabel('x')
     plt.ylabel('y')
@@ -99,7 +102,7 @@ def draw_sca(Coordinates1, Coordinates2):
 
 
 # 画分布图
-def draw_path(chrom, demandCoordinates, centerCoordinates, p, cnum):
+def draw_path(chrom, demandCoordinates, centerCoordinates, p, cnum,d):
     pad = 0.2
     centerlist = []
     clist = []
@@ -116,7 +119,8 @@ def draw_path(chrom, demandCoordinates, centerCoordinates, p, cnum):
                      demandCoordinates[i-cnum][1]], 'r-', color='#4169E1', alpha=0.8, linewidth=0.8)  # plt.plot([x1,x2],[y1,y2])
             plt.text(centerlist[chrom[i]-1][0]+pad,
                      centerlist[chrom[i]-1][1]+pad, str(chrom[clist[chrom[i]-1]]))
-    draw_sca(demandCoordinates, centerCoordinates)
+            
+    draw_sca(demandCoordinates, centerCoordinates,d)
 
 
 if __name__ == '__main__':
@@ -145,7 +149,7 @@ if __name__ == '__main__':
     d = [1, 2, 1, 3, 5, 3, 4, 6, 2, 1, 3, 4, 1,
          2, 6, 1, 4, 2]  # 需求量，对应demandCoordinates
     c = [ablty for i in range(len(d))]  # 能力都设置为25，对应centerCoordinates
-    draw_sca(demandCoordinates, centerCoordinates)  # 位置图
+    draw_sca(demandCoordinates, centerCoordinates,d)  # 位置图
 
     p = round(sum(d)/ablty)+1  # 待决策物流中心数量
     dnum = len(demandCoordinates)  # 需求点数量
@@ -178,7 +182,7 @@ if __name__ == '__main__':
     tabu_list.append(best_chrom)
     tabu_time.append(tabu_limit)
 
-    draw_path(chrom, demandCoordinates, centerCoordinates, p, cnum)
+    draw_path(chrom, demandCoordinates, centerCoordinates, p, cnum,d)
 
     itera = 0
     while itera <= iterMax:
@@ -188,6 +192,7 @@ if __name__ == '__main__':
             best_value, best_chrom = new_value, new_chrom  # 更新最优解
             best_value_list.append(best_value)
             print('第%.d代最优值 %.1f' % (itera, best_value))
+            draw_path(best_chrom, demandCoordinates, centerCoordinates, p, cnum,d)
         chrom, value = new_chrom, new_value  # 更新当前解
 
         # 更新禁忌表
@@ -200,4 +205,4 @@ if __name__ == '__main__':
         tabu_time.append(tabu_limit)
         itera += 1
     # 画图
-    draw_path(best_chrom, demandCoordinates, centerCoordinates, p, cnum)
+    draw_path(best_chrom, demandCoordinates, centerCoordinates, p, cnum,d)
