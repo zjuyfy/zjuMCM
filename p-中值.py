@@ -53,7 +53,7 @@ def traversal_search(chrom,dis_matrix,tabu_list, cnum, d, c, p):
         new_chrom[pos1],new_chrom[pos2]=new_chrom[pos2],new_chrom[pos1]
         
         for i in range(cnum,len(chrom)):
-            if random.random() > 0.75:#一定概率改变
+            if random.random() > 0.2:#一定概率改变
                 new_chrom[i] = random.randint(1,p)
                 
         new_value = calFitness(new_chrom,dis_matrix, cnum, d, c)#当前路径距离
@@ -100,16 +100,13 @@ def draw_sca(Coordinates1,Coordinates2):
 def draw_path(chrom, demandCoordinates, centerCoordinates, p, cnum):
     centerlist = []
     for i in range(cnum):
-        if chrom[i] == 1:
-            centerlist.append(centerCoordinates[i])
-    
+        if chrom[i] >= 1:
+            for j in range(chrom[i]):
+                centerlist.append(centerCoordinates[i])
+    print(centerlist)
     for i in range(cnum,len(chrom)):
-        if chrom[i] == 1:
-            plt.plot([centerlist[0][0],demandCoordinates[i-cnum][0]], [centerlist[0][1],demandCoordinates[i-cnum][1]], 'r-', color='#4169E1', alpha=0.8, linewidth=0.8)#plt.plot([x1,x2],[y1,y2])
-        elif chrom[i] == 2:
-            plt.plot([centerlist[1][0],demandCoordinates[i-cnum][0]], [centerlist[1][1],demandCoordinates[i-cnum][1]], 'r-', color='#4169E1', alpha=0.8, linewidth=0.8)
-        elif chrom[i] == 3:
-            plt.plot([centerlist[2][0],demandCoordinates[i-cnum][0]], [centerlist[2][1],demandCoordinates[i-cnum][1]], 'r-', color='#4169E1', alpha=0.8, linewidth=0.8)
+        if chrom[i] >= 1:
+            plt.plot([centerlist[i][0],demandCoordinates[i-cnum][0]], [centerlist[0][1],demandCoordinates[i-cnum][1]], 'r-', color='#4169E1', alpha=0.8, linewidth=0.8)#plt.plot([x1,x2],[y1,y2])
     draw_sca(demandCoordinates,centerCoordinates)
 
 
@@ -120,8 +117,8 @@ if __name__ == '__main__':
     MaxCoordinate = 100#二维坐标最大值
     
     #TS参数
-    tabu_limit = 100 #禁忌长度
-    iterMax = 1000#迭代次数
+    tabu_limit = 200 #禁忌长度
+    iterMax = 2000#迭代次数
     traversalMax = 100#每一代局部搜索次数
     
     tabu_list = [] #禁忌表
@@ -129,15 +126,17 @@ if __name__ == '__main__':
     best_value = math.pow(10,10)#较大的初始值，存储最优解
     best_line = []#存储最优路径
     
+    ablty=4;
+    
     #需求点位置及需求量，备选中心位置及能力
     demandCoordinates = [(88, 16),(25, 76),(69, 13),(73, 56),(80, 100),(22, 92),(32, 84),(73, 46),(29, 10),(92, 32),(44, 44),(55, 26),(71, 27),(51, 91),(89, 54),(43, 28),(40, 78),(60,66)]
     print(len(demandCoordinates))
     centerCoordinates = demandCoordinates
     d = [1,2,1,3,5,3,4,6,2,1,3,4,1,2,6,1,4,2]#需求量，对应demandCoordinates
-    c = [10 for i in range(len(d))]#能力都设置为25，对应centerCoordinates
+    c = [ablty for i in range(len(d))]#能力都设置为25，对应centerCoordinates
     draw_sca(demandCoordinates,centerCoordinates)#位置图
     
-    p = 19 #待决策物流中心数量
+    p = round(sum(d)/ablty)+1 #待决策物流中心数量
     dnum = len(demandCoordinates) #需求点数量
     cnum = len(centerCoordinates) #备选中心数量
     
@@ -172,11 +171,10 @@ if __name__ == '__main__':
     itera = 0
     while itera <= iterMax:
         new_value,new_chrom = traversal_search(chrom,dis_matrix,tabu_list, cnum, d, c, p)
-        print(new_value)
         if new_value < best_value:#优于最优解
             best_value,best_chrom = new_value,new_chrom#更新最优解
             best_value_list.append(best_value)
-        print('第%.d代最优值 %.1f' % (itera,best_value))
+            print('第%.d代最优值 %.1f' % (itera,best_value))
         chrom,value = new_chrom,new_value#更新当前解
         
         #更新禁忌表
