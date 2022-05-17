@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+import time
 import math
 import random
 import pandas as pd
@@ -82,9 +82,9 @@ def initialize(dnum, cnum, p):
 
 
 # 画散点图
-def draw_sca(Coordinates1, Coordinates2,d):
+def draw_sca(Coordinates1, Coordinates2, d):
     x, y = [], []
-    pad=2
+    pad = 2
     x = [i[0] for i in Coordinates1]
     y = [i[1] for i in Coordinates1]
     plt.scatter(x, y, color='#ff69E1', marker='o')
@@ -94,7 +94,7 @@ def draw_sca(Coordinates1, Coordinates2,d):
     plt.scatter(x, y, color='#4169E1', marker='*')
     for i in range(len(d)):
         plt.text(Coordinates1[i][0]-pad,
-                     Coordinates1[i][1]-pad, str(d[i]),color='red')
+                 Coordinates1[i][1]-pad, str(d[i]), color='red')
 
     plt.xlabel('x')
     plt.ylabel('y')
@@ -102,7 +102,7 @@ def draw_sca(Coordinates1, Coordinates2,d):
 
 
 # 画分布图
-def draw_path(chrom, demandCoordinates, centerCoordinates, p, cnum,d):
+def draw_path(chrom, demandCoordinates, centerCoordinates, p, cnum, d):
     pad = 0.2
     centerlist = []
     clist = []
@@ -119,8 +119,8 @@ def draw_path(chrom, demandCoordinates, centerCoordinates, p, cnum,d):
                      demandCoordinates[i-cnum][1]], 'r-', color='#4169E1', alpha=0.8, linewidth=0.8)  # plt.plot([x1,x2],[y1,y2])
             plt.text(centerlist[chrom[i]-1][0]+pad,
                      centerlist[chrom[i]-1][1]+pad, str(chrom[clist[chrom[i]-1]]))
-            
-    draw_sca(demandCoordinates, centerCoordinates,d)
+
+    draw_sca(demandCoordinates, centerCoordinates, d)
 
 
 if __name__ == '__main__':
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     d = [1, 2, 1, 3, 5, 3, 4, 6, 2, 1, 3, 4, 1,
          2, 6, 1, 4, 2]  # 需求量，对应demandCoordinates
     c = [ablty for i in range(len(d))]  # 能力都设置为25，对应centerCoordinates
-    draw_sca(demandCoordinates, centerCoordinates,d)  # 位置图
+    draw_sca(demandCoordinates, centerCoordinates, d)  # 位置图
 
     p = round(sum(d)/ablty)+allow  # 待决策物流中心数量
     dnum = len(demandCoordinates)  # 需求点数量
@@ -168,6 +168,7 @@ if __name__ == '__main__':
     # 初始化,随机构造
     num = 50
     chroms = [initialize(dnum, cnum, p) for i in range(num)]
+    chroms =  [[0, 1, 2, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 3, 12, 3, 13, 5, 6, 1, 4, 8, 11, 7, 14, 13, 12, 9, 8, 10, 2]]
     values = [calFitness(chrom, dis_matrix, cnum, d, c) for chrom in chroms]
     print(values)
     best_value = min(values)
@@ -183,7 +184,7 @@ if __name__ == '__main__':
     tabu_list.append(best_chrom)
     tabu_time.append(tabu_limit)
 
-    draw_path(chrom, demandCoordinates, centerCoordinates, p, cnum,d)
+    draw_path(chrom, demandCoordinates, centerCoordinates, p, cnum, d)
 
     itera = 0
     while itera <= iterMax:
@@ -206,4 +207,4 @@ if __name__ == '__main__':
         tabu_time.append(tabu_limit)
         itera += 1
     # 画图
-    draw_path(best_chrom, demandCoordinates, centerCoordinates, p, cnum,d)
+    draw_path(best_chrom, demandCoordinates, centerCoordinates, p, cnum, d)
