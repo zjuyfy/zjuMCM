@@ -29,13 +29,13 @@ def calFitness(chrom, dis_matrix, cnum, d, c):
     for i in range(cnum, len(dec_chrom)):
         dec_chrom[i] = declist[dec_chrom[i]-1]
         d_list[dec_chrom[i]].append(i-cnum)
-        weight[dec_chrom[i]] += dis_matrix.loc[i-cnum, dec_chrom[i]]
+        weight[dec_chrom[i]] += dis_matrix.loc[i-cnum, dec_chrom[i]]*c[i-cnum]
         demand[dec_chrom[i]] += d[i-cnum]
 
     dis_sum = 0
     for i in range(len(demand)):
         if demand[i] > c[i]:
-            dis_sum += (demand[i]-c[i])*1000
+            dis_sum += (demand[i]-c[i])*10000
     dis_sum += sum(weight)
     return round(dis_sum, 1)
 
@@ -140,6 +140,7 @@ if __name__ == '__main__':
     best_line = []  # 存储最优路径
 
     ablty = 4
+    allow=3
 
     # 需求点位置及需求量，备选中心位置及能力
     demandCoordinates = [(88, 16), (25, 76), (69, 13), (73, 56), (80, 100), (22, 92), (32, 84), (73, 46), (
@@ -151,7 +152,7 @@ if __name__ == '__main__':
     c = [ablty for i in range(len(d))]  # 能力都设置为25，对应centerCoordinates
     draw_sca(demandCoordinates, centerCoordinates,d)  # 位置图
 
-    p = round(sum(d)/ablty)+1  # 待决策物流中心数量
+    p = round(sum(d)/ablty)+allow  # 待决策物流中心数量
     dnum = len(demandCoordinates)  # 需求点数量
     cnum = len(centerCoordinates)  # 备选中心数量
 
@@ -192,7 +193,7 @@ if __name__ == '__main__':
             best_value, best_chrom = new_value, new_chrom  # 更新最优解
             best_value_list.append(best_value)
             print('第%.d代最优值 %.1f' % (itera, best_value))
-            draw_path(best_chrom, demandCoordinates, centerCoordinates, p, cnum,d)
+            # draw_path(best_chrom, demandCoordinates, centerCoordinates, p, cnum,d)
         chrom, value = new_chrom, new_value  # 更新当前解
 
         # 更新禁忌表
