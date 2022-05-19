@@ -149,6 +149,12 @@
           每条道路的每小时流量。
     \item \textbf{排队时间W\(_s\)}\\
           指一个顾客在系统中的全部停留时间 为 期望值，记为\(W_s\)，它是等待时间和服务时间的总和\(W_s=W_q+E\)。
+    \item \textbf{充电桩总数p}\\
+          充电桩所需的总数p可以通过总需求加上比例为\(\beta\)的冗余求得：
+          \begin{dmath}
+              p=(1+\beta)\cdot\sum_i q_i=(1+\beta)\cdot Po\cdot V_p\cdot\alpha_e/T
+          \end{dmath}
+          其中Po为当地人口总量。
     \item \textbf{快充站的服务模型}
     
         根据假设\ref{asmp:serve}，我们选择用M/M/n的服务系统模型估计等待时间。
@@ -203,14 +209,19 @@
 \textbf{对快充选址的优化：}某人在它们的论文里证明了对于一条路上选址的最佳地点在端点，因此我们任然选取道路交叉点作为节点。这样对于快充的选址优化方程框架上与对慢充的优化方程相同，但对成本的约束不能转化为对数量的约束而应成为优化对象：
 \begin{align*}
     & \min  \begin{cases}
-        f(\rho)=\sum_i \sum_jd_{ij} q_j \rho_{ij}\\
-        f_{sc}=\sum\limits_{i}(f_{ci}\cdot S_0+f_{li})\cdot n_i
+        f_{sc}=\sum\limits_{i}(f_{ci}\cdot S_0+f_{li})\cdot n_i\\
+        f(\rho)=\sum_i \sum_jd_{ij} q_j \rho_{ij}
     \end{cases} \\
     & \begin{cases}
        \sum\limits_j \rho_{ij}=1    & \text{(比例系数和为1)} \\
-       W_{si}\leqslant W_0 & \text{(等待时间限制)}
+       W_{si}\leqslant W_0=1h & \text{(等待时间限制)}\\
+       dis_{ij}<0.9E_k&\text{(续航里程限制)}
    \end{cases}
 \end{align*}
+
+但是，由于快充站的建设成本远高于慢充充电桩，所以快充只用来满足长途旅行的续航问题而不关心短程开车的充电问题（这由慢充来解决）。因此，我们认为城内（地价高）的地方不用设快充充电站，而只需要在城际公路上设置。
+
+城际公路中，高速公路上的快充站设置可以参照服务区的设置（时间先后、地点），因为服务区的设置一般是经过大量计算的。其它道路则可以根据上面的优化方程进行计算。但由于主干道路间隔较大，为了使成本降低，我们只需用快充的捕获半径覆盖全国道路\(n\cdot \frac{\sqrt3}{4}R = S\cdot \alpha\)即可(用正六边形覆盖，\(\alpha=89.26\%\)为道路覆盖率)，而每个快充站的等待时间则与其捕获半径内流量有关。等待时间的限制和流量则规定了每个快充站最少的充电桩数量。
 \subsection{电动车增长模型}
 \subsubsection{相关性分析}
 通过对于以往研究电动汽车发展的论文，我们注意到影响我国电动汽车保有量变化的因素有多种,如经济因素,包括人均GDP、居民收入、经济产业结构、居民消费水平等；社会因素，包括城市人口、城市化率、失业率、拥塞成本等；环境因素,包括公路网规模、基础设施完善度等。考虑长期完整数据的可获得性，我们在这里初步选取了城市人口数、城市化水平、人均GDP、居民消费水平、公路里程、第一产业占比、第二产业占比、第三产业占比这8个代表性的影响因素进行分析。
@@ -222,14 +233,32 @@
 我们对城市人口数、城市化水平、人均GDP、居民消费水平、公路里程、第三产业占比六个因素通过SPSSPRO进行主成分分析，来综合评价每年度的社会经济发展水平。
 
 \subsection{充电桩增长模型}
-充电桩基本只和电动车增长有关，所以我们依据电动车的增长模型所算得的数据再代入选址模型可以得到对充电桩选址的动态预测模型。
+在初次建设充电桩时，我们时常无法一次性建设满足要求数量的充电桩。这时就需要根据人口、需求量、财富等因素得到优先级\(Pr_i=\alpha_1*Po_i+\alpha_2*q_i+\alpha_3*E\)逐步建立充电桩，（对应于p较小的时刻）。随着p的增长充电桩的数量得以逐步满足需求和冗余。
+
+对于慢充来说，随着电池技术的发展，单次充电跨越时间T也会增长，同时随着经济增长，人均电动车数量也会同步增加，这两个因素的预测共同决定了\(q_i\)的发展。而对快充来说，随着科技的发展，充电速度则会提升（即平均服务时间减少），同时车辆的续航里程也会提升。我们依据电动车的增长模型所算得的数据再代入选址模型可以得到对充电桩选址的动态预测模型。
 \section{模型求解}
 \subsection{问题一的求解}
 \subsubsection{充电桩选址}
-我们从网上搜集到了L、\(F_k\)以及\(V_p\)数据，使用最短路径算法得到道路拓扑数据并将数据导入python（见附录\ref{code:load}），再导出了选用对线性规划的对偶单纯形（dual simplex）算法（见附录）求解得到结果如图所示。
+我们从网上搜集到了L、\(F_k\)以及\(V_p\)数据，使用最短路径算法得到道路拓扑数据并将数据导入python（见附录\ref{code:load}）。然后再从网络上得到杭州人口密度的热力图，通过matlab程序将两者结合（见附录\ref{code:heat2data}），如图\ref{fig:heat}所示：
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{pic/杭州道路-热力图.png}
+    \caption{杭州道路-人口热力图}
+    \label{fig:heat}
+\end{figure}
+
+
+接着我们再导出了选用对线性规划的对偶单纯形（dual simplex）算法（见附录）求解得到结果如图所示。
 
 \subsubsection{充电桩未来发展趋势}
 根据我们对于电动车增长的预测模型，代入重新计算了充电桩的选址，可以得到以下充电桩发展图：
+
+首先是初次建立充电桩时的逐步选址图，以下分别列出了p只有当前需求25\%、50\%、75\%和100\%时的优先级选址：
+
+
+
+接着是随着电动车发展而导致的充电桩选址建设预测（假定政府会根据预测提前开始建造充电设施，因此无需关心优先级），以下是n年后、2n年后的充电桩选址：
 
 
 \subsection{问题二的求解}
@@ -312,6 +341,9 @@
 
 \section{模型评价}
 \subsection{敏感性分析}
+\subsection{优点}
+\subsection{不足}
+\subsection{展望}
 
 \section{参考文献}
 \begin{thebibliography}{99}
@@ -321,7 +353,9 @@
 \newpage
 \section{附录}
 \appendix
-\section{导入数据的python代码}
+\section{代码}
+\subsection{导入数据到python}
+\label{code:load}
 \lstset{language=python}
 \lstset{
     numbers=left, 
@@ -334,12 +368,14 @@
     xleftmargin=2em, aboveskip=1em,
     framexleftmargin=2em
 }
-\lstset{title={load.py}}
 
-\lstinputlisting[label={code:load}]{code/load.py}
-\lstinputlisting[caption={\bf loadxy.py},language=Python,label={code:loadxy}]{code/loadxy.py}
+\lstinputlisting[caption={\bf load.py}]{code/load.py}
+\lstinputlisting[caption={\bf loadxy.py},language=Python,]{code/loadxy.py}
 
-\section{转化热力图的matlab代码}
+\subsection{转化热力图的matlab代码}
+\label{code:heat2data}
 \lstinputlisting[caption={\bf heat2data.m},language=Matlab,style={Matlab-editor}]{code/heat2data.m}
+
+\subsection{求解优化问题的python代码}
 
 \end{document}
