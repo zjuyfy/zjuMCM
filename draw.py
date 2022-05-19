@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as color
 import numpy as np
 import random
+
 data=np.load("杭州mergedXY.npy")
 print(data)
 demandCoordinates=[(data[i][0],data[i][1]) for i in range(data.shape[0])]
