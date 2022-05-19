@@ -1,5 +1,10 @@
 \documentclass[12pt, a4paper, oneside]{ctexart}
 \usepackage{graphicx,amsmath,amssymb,geometry}
+
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{matlab-prettifier}
+
 \usepackage{enumerate,enumitem}
 \usepackage{autobreak}
 \usepackage{breqn}
@@ -86,6 +91,9 @@
     \label{asmp:serve}
     车辆到达快充充电站接受服务的间隔以及服务时间的分布符合泊松分布。
 \end{assumption}
+\begin{assumption}
+    所有长途旅行的车辆可以且最多可以在充电站排队等待1个小时。
+\end{assumption}
 
 
 \section{模型建立}
@@ -97,7 +105,7 @@
 
 短时停靠充电站用于在人们长途旅行时临时充电（起到类似于加油站的作用，需在半小时内充满一辆汽车）
 \subsubsection{建模前的准备：约束条件以及概念}
-\begin{enumerate}[label = \alph*)]
+\begin{enumerate}[label = \roman*)]
     \item \textbf{成本}\\
           快充成本为地价和充电桩费用的叠加
           \begin{align}\begin{autobreak}
@@ -138,26 +146,39 @@
     \item \textbf{分配矩阵\(\boldsymbol{\rho}_{ij}\)}\\
           代表i地的需求中\(\rho_{ij}\)的比例由j地满足，因此有\(\sum\limits_j \rho_{ij}=1\)，即总体上每个地区的需求量被100\%地满足
     \item \textbf{道路流量F\(_i\)}\\
-          每条道路的流量，可从互联网中查得。
+          每条道路的每小时流量。
     \item \textbf{排队时间W\(_s\)}\\
           指一个顾客在系统中的全部停留时间 为 期望值，记为\(W_s\)，它是等待时间和服务时间的总和\(W_s=W_q+E\)。
     \item \textbf{快充站的服务模型}
     
-        根据假设\ref{asmp:serve}，我们选择用M/M/s的服务系统模型估计等待时间。
+        根据假设\ref{asmp:serve}，我们选择用M/M/n的服务系统模型估计等待时间。
 
-        首先，我们根据各个站的充电桩的数量\(s_i\)、单位时间前来充电的车数期望
+        首先，我们根据各个站的充电桩的数量\(n_i\)、单位时间前来充电的车数期望
         \begin{dmath}
-            \lambda_i=(\sum\limits_j\rho_{ji}\cdot F_j)/24
+            \lambda_i=\sum\limits_j(\rho_{ji}\cdot F_j)
         \end{dmath}
         以及单位时间能够充好离开的车数期望\(\mu\)可以求解出每个站服务强度
         \begin{dmath}
-            I_i=\frac{\lambda_i}{s_i\mu}
+            I_i=\frac{\lambda_i}{n_i\mu}=\frac{\sum\limits_j(\rho_{ji}\cdot F_j)}{n_i\mu}
         \end{dmath}
-        由此我们可以得到稳态概率，即车辆不必等待即可充电的概率\(P_0=1-I\)以及等待n辆车的概率\(P_n=I^n(1-I)\)。
-
-        而排队时间则为：
+        因此服务请求队列为k的概率，即车辆等待k-n辆即可充电的概率：
         \begin{dmath}
-            W_s=\frac{1}{\mu-\lambda}
+            p_{k}=\begin{cases}
+                p_{0} \frac{I^{k}}{k !}, &1 \leqslant k<n \\
+                p_{0} \frac{I^{k}}{n ! n^{k-n}}, &k \geqslant n
+            \end{cases},
+        \end{dmath}
+        \begin{dmath}
+            \text{其中}p_{0}=\left[\sum_{k=0}^{n-1} \frac{I^{k}}{k !}+\frac{I^{n}}{n !\left(1-\frac{I}{n}\right)}\right]^{-1}
+        \end{dmath}
+
+        由此我们可以得到车辆排队等待的概率\(E_c(I)\)为：
+        \begin{dmath}
+            E_{c}(I)=\sum_{k=n}^{\infty} p_{k}=\frac{\frac{I}{n}}{n !\left(1-\frac{I}{n}\right)} p_{0}
+        \end{dmath}
+        最后得到车辆排队等待时间\(W_s\)为:
+        \begin{dmath}
+            W_s=\frac{E_{c}(n, \rho)}{n \mu-\lambda}+\frac{1}{\mu}
         \end{dmath}
 \end{enumerate}
 
@@ -179,13 +200,15 @@
     \end{cases}
 \end{align*}
 
-\textbf{对快充选址的优化：}某人在它们的论文里证明了对于一条路上选址的最佳地点在端点，因此我们任然选取道路交叉点作为节点。这样对于快充的选址优化方程框架上与对慢充的优化方程相同，但对成本的约束不能转化为对数量的约束：
+\textbf{对快充选址的优化：}某人在它们的论文里证明了对于一条路上选址的最佳地点在端点，因此我们任然选取道路交叉点作为节点。这样对于快充的选址优化方程框架上与对慢充的优化方程相同，但对成本的约束不能转化为对数量的约束而应成为优化对象：
 \begin{align*}
-    & \min  f(\rho)=\sum_i \sum_jd_{ij} q_j \rho_{ij} \\
+    & \min  \begin{cases}
+        f(\rho)=\sum_i \sum_jd_{ij} q_j \rho_{ij}\\
+        f_{sc}=\sum\limits_{i}(f_{ci}\cdot S_0+f_{li})\cdot n_i
+    \end{cases} \\
     & \begin{cases}
-        \sum\limits_{i}(f_{ci}\cdot S_0+f_{li})\cdot n_i\leqslant f_{sc}                                    & \text{(成本约束)} \\
-       \sum\limits_j \rho_{ij}=1                               & \text{(比例系数和为1)} \\
-       \sum\limits_i F_{i}\rho_{ij}\leqslant c_j=n_j \cdot c_0 & \text{(高峰期承载力限制)}
+       \sum\limits_j \rho_{ij}=1    & \text{(比例系数和为1)} \\
+       W_{si}\leqslant W_0 & \text{(等待时间限制)}
    \end{cases}
 \end{align*}
 \subsection{电动车增长模型}
@@ -203,7 +226,12 @@
 \section{模型求解}
 \subsection{问题一的求解}
 \subsubsection{充电桩选址}
-我们选用进化算法求解得到结果d
+我们从网上搜集到了L、\(F_k\)以及\(V_p\)数据，使用最短路径算法得到道路拓扑数据并将数据导入python（见附录\ref{code:load}），再导出了选用对线性规划的对偶单纯形（dual simplex）算法（见附录）求解得到结果如图所示。
+
+\subsubsection{充电桩未来发展趋势}
+根据我们对于电动车增长的预测模型，代入重新计算了充电桩的选址，可以得到以下充电桩发展图：
+
+
 \subsection{问题二的求解}
 \subsubsection{相关性分析}
 首先我们将以上八个因素与电动汽车保有量进行了Spearman相关系数相关性分析，得到如下相关系数热力图(图\ref{fig:相关系数热力图})。（八个因素的数据来自于《中国统计年鉴（2021）》\cite{cite:统计年鉴}，电动汽车保有量来自于《2022年中国新能源汽车行业市场前景及投资研究预测报告》\cite{cite:预测报告}）
@@ -278,7 +306,7 @@
 \subsubsection{预测电动车发展趋势}
 我们通过生物种群相互竞争模型来预测未来几年的电动车与柴油车的数量关系。
 
-首先我们假设其数量遵循Logistic规律，并且显然两者之间存在竞争关系，于是我们利用生物种群相互竞争模型来预测未来几年的电动车与柴油车的数量关系。
+首先我们假设其数量遵循Logistic规律，并且显然两者之间存在竞争关系，于是我们利用生物种群相互竞争模型来预测未来几年的电动车与柴油车的数量关系。\ref{code:load}
 
 
 
@@ -290,5 +318,28 @@
     \bibitem{cite:统计年鉴}中华人民共和国统计局.中国统计年鉴(2021)[M].北京：中国统计出版社,2022.
     \bibitem{cite:预测报告}
 \end{thebibliography}
+\newpage
 \section{附录}
+\appendix
+\section{导入数据的python代码}
+\lstset{language=python}
+\lstset{
+    numbers=left, 
+    numberstyle= \tiny, 
+    keywordstyle= \color{ blue!70},
+    commentstyle= \color{red!50!green!50!blue!50}, 
+    frame=shadowbox, % 阴影效果
+    rulesepcolor= \color{ red!20!green!20!blue!20} ,
+    escapeinside=``, % 英文分号中可写入中文
+    xleftmargin=2em, aboveskip=1em,
+    framexleftmargin=2em
+}
+\lstset{title={load.py}}
+
+\lstinputlisting[label={code:load}]{code/load.py}
+\lstinputlisting[caption={\bf loadxy.py},language=Python,label={code:loadxy}]{code/loadxy.py}
+
+\section{转化热力图的matlab代码}
+\lstinputlisting[caption={\bf heat2data.m},language=Matlab,style={Matlab-editor}]{code/heat2data.m}
+
 \end{document}
