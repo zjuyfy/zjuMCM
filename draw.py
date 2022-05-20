@@ -32,23 +32,23 @@ for ni in N:
     # print(type(n[ni].x),n[ni].x,type(nMax))
     if n[ni]>nMax:
         nMax=n[ni]
-
+norm=color.Normalize(vmax=10,vmin=0)
 for i in N:
     if (n[i]>0):
         xy=demandCoordinates[i]
         col=plt.cm.rainbow
-        norm=color.Normalize(vmax=round(nMax)+1,vmin=0)
-        # plt.plot(xy[0],xy[1],marker="s",color='g',markersize=markersize)
+        # norm=color.Normalize(vmax=round(nMax)+1,vmin=0)
+        plt.plot(xy[0],xy[1],marker="s",color='g',markersize=markersize)
         plt.plot(xy[0],xy[1],marker="s",color=col(norm(n[i])),markersize=markersize)
         # plt.text(xy[0]-5,xy[1]-5,f"{n[i].x}",color="b")
         
 
-# 画供应线
-for i,j in A:
-    if x[i,j]>0.0:
-        demandCoordinates[i][0],demandCoordinates[i][1]
-        demandCoordinates[j][0],demandCoordinates[j][1]
-        plt.plot([demandCoordinates[i][0],demandCoordinates[j][0]],[demandCoordinates[i][1],demandCoordinates[j][1]],color="r",linewidth=linewidth)
+# # 画供应线
+# for i,j in A:
+#     if x[i,j]>0.0:
+#         demandCoordinates[i][0],demandCoordinates[i][1]
+#         demandCoordinates[j][0],demandCoordinates[j][1]
+#         plt.plot([demandCoordinates[i][0],demandCoordinates[j][0]],[demandCoordinates[i][1],demandCoordinates[j][1]],color="r",linewidth=linewidth)
 
 
 
