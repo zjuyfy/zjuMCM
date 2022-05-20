@@ -340,8 +340,9 @@ Adequacy)。该检验是对原始变量之间的简相关系数和偏相关系�
   \begin{tabularx}{0.9\textwidth}{llXX}
     \toprule
     \rowcolor{blue!30}
-    成分       & 特征根     &          &          \\
-    特征根     & 方差百分比 & 累积     &          \\
+    & \multicolumn{3}{c}{特征根}\\
+    \rowcolor{blue!30}
+    成分&特征根     & 方差百分比 & 累积     \\
     1          & 5.657      & 94.286\% & 94.286\% \\
     2          & 0.278      & 4.636\%  & 98.922\% \\
     3          & 0.056      & 0.927\%  & 99.849\% \\
@@ -368,12 +369,12 @@ Adequacy)。该检验是对原始变量之间的简相关系数和偏相关系�
 
 从下面的因子载荷矩阵热力图中可以分析每个主成分中隐变量的重要性，其中第一个主成分与前五个因素都具有较大的相关性（0.9以上），我们概括为``城市总体发展程度''。主成分2与第三产业占比的相关程度较大，可以概括为``服务业发展程度''。
 
-% \begin{figure}[H]
-%   \centering
-%   \includegraphics[width=\textwidth]{pic/相关系数热力图 (3).png}
-%   \caption{相关系数热力图}
-%   \label{fig:相关系数热力图3}
-% \end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{pic/相关系数热力图 (3).jpg}
+  \caption{相关系数热力图}
+  \label{fig:相关系数热力图3}
+\end{figure}
 
 根据表\ref{tab:总方差}我们得到模型的公式：
 
@@ -421,11 +422,12 @@ Adequacy)。该检验是对原始变量之间的简相关系数和偏相关系�
   y=0.4071x-820.4
 \end{dmath}
 
-% \begin{figure}[H]
-%   \centering
-%   \includegraphics{https://tkoghgi47p.feishu.cn/space/api/box/stream/download/asynccode/?code=NTY2MzY4ZDViMmU5N2JmOWU0ZmE5OTgyZGVhNmFhM2NfN0xrZVdBbjVJZ2VrVHpvU1N2NmdkdDNRVlM4VWxSdE9fVG9rZW46Ym94Y25yNUhGSEpnQjNQcmZUMGJTSUtJRDJBXzE2NTI5Mzg4NjM6MTY1Mjk0MjQ2M19WNA}
-%   \caption{}
-% \end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{pic/第一主成分值（1）.jpg}
+  \caption{第一主成分值与年份呈显著的线性正相关}
+  \label{fig:第一主成分值与年份}
+\end{figure}
 
 第一主成分与电动汽车、燃油汽车保有量均存在明显的非线性关系,
 故考虑选取第一主成分为基准得到后面生物种群相互竞争模型中的$\sigma_1$
@@ -451,12 +453,12 @@ Adequacy)。该检验是对原始变量之间的简相关系数和偏相关系�
 
 燃油汽车保有量=19083.71+4673.396*主成分
 
-% \begin{figure}[H]
-%   \centering
-%   \includegraphics[width=0.8\textwidth]{pic/拟合效果图.png}
-%   \caption{拟合效果图}
-%   \label{fig:拟合效果图2}
-% \end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{pic/拟合效果图.jpg}
+  \caption{拟合效果图}
+  \label{fig:拟合效果图2}
+\end{figure}
 
 \begin{figure}[H]
   \centering
@@ -621,14 +623,19 @@ ARIMA模型（0,1,0）检验表如下，得到模型结果为ARIMA模型（0,1,0
 
 预测2027年杭州市人均GDP为173526人民币，2032年杭州市人均GDP为197195万元。
 
+\textbf{技术发展}
 
+技术的发展可以使汽车的续航里程和充电速度增加，我们假设这两者同步增加（即充电服务时间保持不变），并只对续航里程进行一个预测。
+
+\textbf{充电桩增长预测}
 根据我们对于电动车增长的预测模型，代入重新计算了充电桩的选址，可以得到以下充电桩发展图：
 
 首先是初次建立充电桩时的逐步选址图，以下分别列出了p只有当前需求25\%、50\%、75\%和100\%时的优先级选址：
 
 
+由图可以看出充电桩的选址随着建设的完成度增加会逐渐趋于平均，因此对于以后的预测将只对充电桩数量进行预测。
 
-接着是随着电动车发展而导致的充电桩选址建设预测（假定政府会根据预测提前开始建造充电设施，因此无需关心优先级），以下是n年后、2n年后的充电桩选址：
+接着是随着电动车发展而导致的充电桩建设数量预测（假定政府会根据预测提前开始建造充电设施，因此无需关心优先级），以下是n年后、2n年后的充电桩选址：
 
 
 \subsection{问题二的求解}
