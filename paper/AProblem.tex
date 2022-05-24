@@ -33,8 +33,22 @@
 
 
 \begin{document}
-\begin{abstract}
+\thispagestyle{empty}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{pic/2022face.pdf}
+\end{figure}
 
+
+\newpage
+\setcounter{page}{1}
+\begin{abstract}
+  本文主要研究电动汽车充电桩的数量与选址问题。电动汽车凭借其节能经济正在逐渐成为当今时代汽车市场重要的一部分，与之伴随而来的是人们对充电桩的需求。合理的充电桩数量与布局能够起到最大的经济效益并且便利人们。
+
+  针对问题一，将充电桩分成快慢充两类，利用了ArcGIS软件对杭州道路进行仿真得到拓扑结构，以路口为节点将道路转化为无向赋权图。以初始距离矩阵通过弗洛伊德算法求两个节点之间的最短路径，得到{\bf OD距离成本矩阵}。我们使用了带承载力限制的{\bf P-中值模型}确定目标优化函数，以充电桩数量和各点的承载力限制作为约束条件建立整数线性规划模型。使用{\bf 对偶单纯形法}利用GUROBI求解该数学模型。在快充充电中应用{\bf 排队理论}计算排队时间作为额外约束条件，同时考虑成本因素进行{\bf 多目标优化}。关于充电桩未来发展的预测，我们通过人口、需求量、财富等因素进行预测，对充电需求量的预测我们转化为了对电动汽车数量增长的预测。考虑到第二问的要求，电动汽车数量增长的预测描述我们写在后面一段中。我们以杭州为例展开我们的算法。
+  
+  针对问题二，考虑到汽车市场中主要由电动汽车与燃油汽车两个主流车种组成，并且两者数量增长满足Logistic规律，我们联想到了{\bf 生物种群竞争模型}。该模型中较难得到的指标是发展优势指数$\sigma$，我们开创性地通过对影响汽车数量的几个主要因素使用{\bf 主成分分析法}，得到了以“城市发展程度”为关键词的第一主成分值。接着我们将该主成分值与两种汽车数量分别运用{\bf 线性回归}作出拟合，通过得到的拟合函数计算出各自的发展优势指数$\sigma$。最后使用MATLAB软件对该模型进行求解，得到了未来十年电动汽车数量与燃油汽车数量的预测。所得到预测结果基本与主流预测基本接近，且与2022年第一季度数量验证后符合。同时根据第一问中对未来五年、十年后的预测结果我们对电动汽车的发展作出了进一步分析。\\\\
+\textbf{关键词 : OD矩阵，P-中值模型，对偶单纯形，排队理论，多目标优化，主成分分析，生物种群竞争模型，线性回归}
 \end{abstract}
 \newpage
 \section{问题重述}
@@ -46,12 +60,11 @@
 随着温室效应和空气污染问题的加剧，各国都在寻找新能源来替代传统燃料，如原油或柴油，以缓解日益严重的空气问题。自混合动力汽车和燃气汽车问世以来，新型清洁汽车的探索仍在不断进行。目前，以特斯拉为首的电动汽车将在更大程度上突破能源和经济的限制，更好地平衡快速增长的汽车需求与环境的关系。充电站数量合适，距离合适，对于电动汽车的普及至关重要。与加油站相比，电动汽车充电站占用的空间更小，具有更高的安全系数，可以更好地分布在街道和社区，让人们更方便、更高效地使用。然而，电动汽车的推广并非一蹴而就。要逐步扩大电动汽车覆盖面，不断完善电动汽车充电站网络，最终完成汽油和柴油汽车的终结运营。另外，不同国家的经济、文化条件不同，需要根据自己的具体情况确定推广时间和推广范围，才能取得更好的效果。要逐步扩大电动汽车覆盖面，不断完善电动汽车充电站网络，最终完成汽油和柴油汽车的。
 \subsection{具体问题重述}
 \subsubsection{第一问}
-开发一算法来确定某地区的充电站系统，包括充电站的位置和数量，并预测未来增长情况。
+随着时代的发展，电动汽车正逐渐步入人们的生活，但与此同时充电桩的需求问题逐渐显现。当前时代处于电动汽车发展初期，充电站系统的不完善在一定程度上限制了电动汽车的发展，同时充电桩的分布乱象也对社会资源、交通运输等方面产生了诸多负面影响。问题一要求我们综合考虑多方面因素，对充电站系统建模，开发一个合适的算法解决充电站的数量与布局选址问题。
 
 \subsubsection{第二问}
-根据开发的算法进行结果的分析和讨论，找出未来影响电动汽车发展战略的主要因素，预测电动汽车未来发展的趋势。
+电动汽车未来发展的趋势是当下的热点讨论问题，如问题一所言，充电站系统是影响电动汽车整体发展的重要因素。所以在问题一的基础下，要求结合其他模型预测电动汽车未来发展，并结合问题一模型，研究影响电动汽车发展的主要因素。
 
-\section{问题分析}
 
 \section{符号说明}
 \begin{table}[H]
@@ -97,8 +110,9 @@
 \begin{assumption}
     所有长途旅行的车辆可以且最多可以在充电站排队等待1个小时。
 \end{assumption}
-
-
+\begin{assumption}
+  考虑到数据获取的简便，我们将新能源汽车均归类为电动汽车。
+\end{assumption}
 \section{模型建立}
 \subsection{充电桩选址模型}
 \subsubsection{充电桩分类}
@@ -128,7 +142,7 @@
               \end{autobreak}\end{align}
           其中L为年平均行驶里程，\(F_k\)为百公里耗电，\(Po\)为地区人口，\(V_p\)为地区人均私家车数量，\(\alpha_e\)为电动车占比，可由电动车发展模型得到。以上数据均可以从互联网中查得。
     \item \textbf{OD距离矩阵d\(_{ij}\)}\\
-          距离矩阵可以通过道路实际位置和道路拓扑结构通过对每两个节点求最短路径算出。道路数据从互联网上查得。
+          距离矩阵可以通过道路实际位置和道路拓扑结构通过对每两个节点求最短路径算出。道路数据从互联网上获得。
     \item \textbf{电网负荷Ld\(_a\)}\\
           由于中国电网很强大，且现在电动车数量稀少，我们初步模型暂时不考虑这个条件作为约束，但可以根据结果计算对电网造成的负荷。计算方法如下：\\
           慢充考虑一整天的负荷\(Ld_{lc}=\beta q/24\)，\(\beta\)为损耗系数。除以24得到平均每小时负荷\\
@@ -160,7 +174,7 @@
           其中Po为当地人口总量。
     \item \textbf{快充站的服务模型}
     
-        根据假设\ref{asmp:serve}，我们选择用M/M/n的服务系统模型估计等待时间。
+        根据假设\ref{asmp:serve}，我们选择用M/M/n的服务系统模型估计等待时间。\cite{cite:MMn}
 
         首先，我们根据各个站的充电桩的数量\(n_i\)、单位时间前来充电的车数期望
         \begin{equation}
@@ -213,9 +227,9 @@
     \label{fun:优化lc}
 \end{equation}
 
-这是一个离散的线性规划模型。
+这是一个整数线性规划模型。
 
-\textbf{对快充选址的优化：}某人在它们的论文里证明了对于一条路上选址的最佳地点在端点，因此我们任然选取道路交叉点作为节点。这样对于快充的选址优化方程框架上与对慢充的优化方程相同，但对成本的约束不能转化为对数量的约束而应成为优化对象：
+\textbf{对快充选址的优化：}对于一条路上选址的最佳地点在端点\cite[]{cite:端点}，因此我们选取道路交叉点作为节点。这样对于快充的选址优化方程框架上与对慢充的优化方程相同，但对成本的约束不能转化为对数量的约束而应成为优化对象：
 \begin{equation}
     \begin{aligned}
         & \min  \begin{cases}
@@ -324,8 +338,6 @@ $\sigma_1$ 与$\sigma_2$
 
 我们对城市人口数、城市化水平、人均GDP、居民消费水平、公路里程、第三产业占比六个因素通过SPSSPRO进行主成分分析，来综合评价每年度的社会经济发展水平。
 
-（主成分分析的主要步骤\ldots\ldots 不知道要不要写，先省略）
-
 KMO检验是 Kaiser, Meyer和 Olkin提出的抽样适合性检验( Measure of Sampling
 Adequacy)。该检验是对原始变量之间的简相关系数和偏相关系数的相对大小进行检验。Bartlett球形度检验用于检验相关阵中各变量间的相关性，是否为单位阵，即检验各个变量是否各自独立。
 
@@ -358,7 +370,7 @@ Adequacy)。该检验是对原始变量之间的简相关系数和偏相关系�
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{pic/因子分析碎石图.png}
+  \includegraphics[width=0.7\textwidth]{pic/因子分析碎石图.png}
   \caption{因子分析碎石图}
   \label{fig:因子分析碎石图}
 \end{figure}
@@ -371,7 +383,7 @@ Adequacy)。该检验是对原始变量之间的简相关系数和偏相关系�
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{pic/相关系数热力图 (3).jpg}
+  \includegraphics[width=0.7\textwidth]{pic/相关系数热力图 (3).jpg}
   \caption{相关系数热力图}
   \label{fig:相关系数热力图3}
 \end{figure}
@@ -424,7 +436,7 @@ Adequacy)。该检验是对原始变量之间的简相关系数和偏相关系�
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{pic/第一主成分值（1）.jpg}
+  \includegraphics[width=0.7\textwidth]{pic/第一主成分值（1）.jpg}
   \caption{第一主成分值与年份呈显著的线性正相关}
   \label{fig:第一主成分值与年份}
 \end{figure}
@@ -439,7 +451,7 @@ Adequacy)。该检验是对原始变量之间的简相关系数和偏相关系�
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{pic/拟合效果图 (1).png}
+  \includegraphics[width=0.7\textwidth]{pic/拟合效果图 (1).png}
   \caption{拟合效果图}
   \label{fig:拟合效果图}
 \end{figure}
@@ -455,7 +467,7 @@ Adequacy)。该检验是对原始变量之间的简相关系数和偏相关系�
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{pic/拟合效果图.jpg}
+  \includegraphics[width=0.7\textwidth]{pic/拟合效果图.jpg}
   \caption{拟合效果图}
   \label{fig:拟合效果图2}
 \end{figure}
@@ -504,6 +516,15 @@ Adequacy)。该检验是对原始变量之间的简相关系数和偏相关系�
 
 
 接着我们再对线性规划方程(\ref{fun:优化lc})选用对的对偶单纯形（dual simplex）算法（见附录\ref{code:优化}）求解得到结果如图所示。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{pic/带背景选址.png}
+  \caption{优化结果}
+  \label{fig:优化结果}
+\end{figure}
+
+其中红线代表两个节点间有需求传递。
 
 \subsubsection{充电桩未来发展趋势}
 我们认为充电桩未来发展影响因素有三个：人口因素、财富因素以及技术因素。
@@ -626,7 +647,14 @@ ARIMA模型（0,1,0）检验表如下，得到模型结果为ARIMA模型（0,1,0
 
 \textbf{技术发展}
 
-技术的发展可以使汽车的续航里程和充电速度增加，我们假设这两者同步增加（即充电服务时间保持不变），并只对续航里程进行一个预测。
+技术的发展可以使汽车的续航里程和充电速度增加，我们假设这两者同步增加（即充电服务时间保持不变），并只对续航里程进行一个预测（由于没有人收集续航里程的数据，这里只能根据不同年份的报道做一个粗略的预测），如图所示：
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{pic/续航里程.jpg}
+  \caption{续航里程随年份变化}
+  \label{fig:续航里程}
+\end{figure}
+
 
 \textbf{充电桩增长预测}
 根据我们对于电动车增长的预测模型，代入重新计算了充电桩的选址，可以得到以下充电桩发展图：
@@ -634,10 +662,61 @@ ARIMA模型（0,1,0）检验表如下，得到模型结果为ARIMA模型（0,1,0
 首先是初次建立充电桩时的逐步选址图，以下分别列出了p只有当前需求25\%、50\%、75\%和100\%时的优先级选址：
 
 
-由图可以看出充电桩的选址随着建设的完成度增加会逐渐趋于平均，因此对于以后的预测将只对充电桩数量进行预测。
+
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{pic/300_1.5_2.61\%.png}
+    \caption{3\%时}
+  \end{minipage}
+  \begin{minipage}[t]{0.4\textwidth}
+    \includegraphics[height=5cm]{pic/500_2_4.2\%.png}
+    \caption{5\%时}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.5\textwidth}
+    \includegraphics[height=5cm]{pic/1000_1.2_50\%.png}
+    \caption{10\%时}
+  \end{minipage}
+  \begin{minipage}[t]{0.3\textwidth}
+    \includegraphics[height=5cm]{pic/2000_1.1_71\%.png}
+    \caption{20\%时}
+  \end{minipage}
+
+\end{figure}
+
+如图，图中连接的红线（代表节点对外部的需求）随着建设的完成度增加（可用点越来越多）越来越少，也就是说人们不用去节点外部充电，便利性逐步趋向于理论最高值；此外充电桩的选址随着建设的完成度增加，会逐渐趋于使每个节点都有充电桩，因此对于以后的预测将只对充电桩数量进行预测。
 
 接着是随着电动车发展而导致的充电桩建设\textbf{需求数量预测}（假定政府会根据预测提前开始建造充电设施，因此无需关心优先级），如图所示：
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{pic/充电桩总数.jpg}
+  \caption{充电桩数量预测}
+  \label{fig:充电桩数量预测}
+\end{figure}
+
+
+图中可以看出，如果续航里程如预测那样发展，并不能抵消电动车数量增加带来的对充电桩数量增加，p值随着时间推移会先以一个越来越快的速率增加，然后增加速率会趋于平稳。
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.45\textwidth}
+    \includegraphics[height=5cm]{pic/随便画的五颜六色图.png}
+    \caption{5年后}
+  \end{minipage}
+  \begin{minipage}[t]{0.45\textwidth}
+    \includegraphics[height=5cm]{pic/更红一点的图.png}
+    \caption{十年后}
+  \end{minipage}
+
+\end{figure}
+
+如图所示，随着电动车的增加，p值不断增加，市中心需求量大的地区红色加深，即每个节点充电桩数量增加。此外，红色趋于向外移动，但速度缓慢，也就是说郊区充电桩逐渐缓慢地被充电桩完全覆盖。
 
 \subsection{问题二的求解}
 \subsubsection{模型的求解}
@@ -646,7 +725,7 @@ ARIMA模型（0,1,0）检验表如下，得到模型结果为ARIMA模型（0,1,0
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{pic/911652953505_.pic.jpg}
+  \includegraphics[width=0.7\textwidth]{pic/911652953505_.pic.jpg}
   \caption{电动汽车与燃油汽车未来十年保有量预测}
   \label{fig:电动汽车与燃油汽车未来十年保有量预测}
 \end{figure}
@@ -656,17 +735,27 @@ ARIMA模型（0,1,0）检验表如下，得到模型结果为ARIMA模型（0,1,0
 
 
 
-\section{模型评价}
-\subsection{敏感性分析}
-\subsection{优点}
-\subsection{不足}
-\subsection{展望}
+\section{模型结论分析}
+
+
+从我们预测曲线中注意到，传统燃油汽车未来十年内的保有量依然增长缓慢，并且与2030年开始出现拐点，保有量出现减少趋势。电动汽车增长迅速，预计到五年后保有量达到50万辆以上，未来十年内增长趋势都将变快。且从主成分分析中可以看出，城市发展程度，尤其是人均GDP、公路里程数对电动汽车数量有显著影响。
+
 
 
 \begin{thebibliography}{99}
     \bibitem{cite:统计年鉴}中华人民共和国统计局.中国统计年鉴(2021)[M].北京：中国统计出版社,2022.
-    \bibitem{cite:预测报告}
+    \bibitem{cite:端点}徐浩. 面向规模化电动汽车入网的充电站布局优化及有序充电策略研究[D]. 湖北:华中科技大学,2015. DOI:10.7666/d.D731664.
+    \bibitem{cite:1}刘斌,赵天舒,张冉霞.基于改进PCA-Logistic模型对个人汽车保有量预测[J].公路交通科技,2020,37(08):136-143.
+    \bibitem{cite:1}张兰怡,胡喜生,陈清耀,邱荣祖.基于PCA-Logistic回归的汽车保有量预测研究[J].重庆交通大学学报(自然科学版),2017,36(05):104-109.
+    \bibitem{cite:1}姜靖 ,戴慧兰. 我国到底能承载多少汽车？[N]. 科技日报,2011-09-26(011).DOI:10.28502/n.cnki.nkjrb.2011.004243.
+    \bibitem{cite:1}何蔼琳,王豹.基于改进LSTM算法的城市轨道交通	OD客流预测方法[J].综合运输,2021,43(04):67-72+87.
+    \bibitem{cite:MMn}何洪磊. 使用M/M/n模型优化服务器队列性能[J]. 现代信息科技,2021,5(23):80-83,87. DOI:10.19850/j.cnki.2096-4706.2021.23.021.
+
 \end{thebibliography}
+
+
+
+
 \newpage
 \section{附录}
 \appendix
@@ -685,15 +774,37 @@ ARIMA模型（0,1,0）检验表如下，得到模型结果为ARIMA模型（0,1,0
     xleftmargin=2em, aboveskip=1em,
     framexleftmargin=2em
 }
-
+\subsubsection{}
 \lstinputlisting[caption={\bf load.py}]{code/load.py}
-\lstinputlisting[caption={\bf loadxy.py},language=Python,]{code/loadxy.py}
+\subsubsection{}
+\lstinputlisting[caption={\bf loadxy.py},language=Python]{code/loadxy.py}
 
-\subsection{转化热力图的matlab代码}
+\subsection{提取热力图数据的matlab代码}
+\subsubsection{}
+\label{code:heat2data}
+\lstinputlisting[caption={\bf heatcolortrans.m},language=Matlab,style={Matlab-editor}]{code/heatcolortrans.m}
+\subsubsection{}
 \label{code:heat2data}
 \lstinputlisting[caption={\bf heat2data.m},language=Matlab,style={Matlab-editor}]{code/heat2data.m}
 
-\subsection{求解优化问题的python代码}
-\label{code:优化}
+\subsection{热力图数据换算人口密度的python代码}
+\label{code:P_location}
+\lstinputlisting[caption={\bf calculateq.py},language=Python]{code/calculateq.py}
 
+\subsection{合并冗余数据的matlab代码}
+\label{code:merge}
+\lstinputlisting[caption={\bf merge.m},language=Matlab,style={Matlab-editor}]{code/merge.m}
+\subsection{生物竞争模型的matlab代码}
+\label{code:生物竞争}
+\lstinputlisting[caption={\bf 生物竞争.m},language=Matlab,style={Matlab-editor}]{code/生物竞争.m}
+\subsection{logistic的matlab代码}
+\label{code:logistic}
+\lstinputlisting[caption={\bf logistic.m},language=Matlab,style={Matlab-editor}]{code/logistic.m}
+
+\subsection{求解优化问题以及画图的python代码}
+\label{code:P_location}
+\lstinputlisting[caption={\bf P_location.py},language=Python]{code/P_location.py}
+\subsection{遗传算法解规划的python代码}
+\label{code:p-中值}
+\lstinputlisting[caption={\bf p-中值.py},language=Python]{code/p-中值.py}
 \end{document}
